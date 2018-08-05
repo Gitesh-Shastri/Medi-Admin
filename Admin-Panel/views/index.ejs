@@ -152,8 +152,13 @@
                         <td>
                             <form action="/changeS" method="POST">
                                 <input type="text" name="order_id" value="<%= order._id %>" hidden/>
-                                <button name="state" type="submit" class="btn btn-success" value="Accepted" onMouseOver="this.style.color='#0F0'">Accepted</button>
-                                <button name="state" type="submit" class="btn btn-success" value="Not Accepted" onMouseOver="this.style.color='#0F0'">Not Accepted</button>
+                                <button name="state" type="submit" class="btn btn-success" value="Accepted"
+				 onMouseOver="this.style.color='#660066'"
+   				 onMouseOut="this.style.color='#f5f5dc'">Accepted</button>
+                                <button name="state" type="submit" class="btn btn-danger" value="Not Accepted"
+				 onMouseOver="this.style.color='#660066'"
+   				 onMouseOut="this.style.color='#f5f5dc'"
+					>Not Accepted</button>
                               </form>
                         </td>
                        </tr>
