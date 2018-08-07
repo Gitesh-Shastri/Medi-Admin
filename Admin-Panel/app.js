@@ -169,6 +169,16 @@ app.get('/pharmacy', (req, res) => {
 
 //----------------index - route ---------------------
 app.post('/changeS', (req, res, next) => {
+    if(req.body.state == "Decline") {  
+    Order.findOneAndUpdate({_id: req.body.order_id}, {$set:{state: req.body.state, status: "Canceled"}}, {new: true}, (err, doc) => {
+        if(err) {
+            console.log(err);
+        } else {
+            console.log(doc);
+        }
+        res.redirect('/');
+    })
+    } else {
     Order.findOneAndUpdate({_id: req.body.order_id}, {$set:{state: req.body.state}}, {new: true}, (err, doc) => {
         if(err) {
             console.log(err);
@@ -177,6 +187,7 @@ app.post('/changeS', (req, res, next) => {
         }
         res.redirect('/');
     })
+    }
 });
 
 app.get('/:id/mail', (req, res, next) => {
