@@ -190,6 +190,16 @@ app.get('/pharmacy', (req, res) => {
 
 //----------------index - route ---------------------
 app.post('/changeS', (req, res, next) => {
+    if(req.body.state == "Decline") {  
+    Order.findOneAndUpdate({_id: req.body.order_id}, {$set:{state: req.body.state, status: "Canceled"}}, {new: true}, (err, doc) => {
+        if(err) {
+            console.log(err);
+        } else {
+            console.log(doc);
+        }
+        res.redirect('/');
+    })
+    } else {
     Order.findOneAndUpdate({_id: req.body.order_id}, {$set:{state: req.body.state}}, {new: true}, (err, doc) => {
         if(err) {
             console.log(err);
@@ -198,6 +208,7 @@ app.post('/changeS', (req, res, next) => {
         }
         res.redirect('/');
     })
+    }
 });
 
 app.get('/:id/mail', (req, res, next) => {
@@ -215,7 +226,7 @@ app.get('/:id/mail', (req, res, next) => {
                 user: "giteshshastri123@outlook.com",
                 pass: "shastri@1"
             }, from: 'giteshshastri123@outlook.com', //  
-            to: 'giteshshastri96@gmail.com, arpandebasis@medicento.com, rohit@medicento.com, miniintl@rediffmail.com, giteshmedicento@gmail.com ',
+            to: 'giteshshastri96@gmail.com, Contact.medicento@gmail.com, rohit@medicento.com, miniintl@rediffmail.com, giteshmedicento@gmail.com ',
             subject: 'Order From Medicento On ' + moment(time1).format('LLLL'),
             html: message + '</table><p>Billing Total : ' +doc.grand_total + '</p>',
         });
