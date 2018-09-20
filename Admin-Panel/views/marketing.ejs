@@ -1,0 +1,69 @@
+<% include header.ejs %>
+<div class="be-left-sidebar" style="position:fixed;">
+    <div class="left-sidebar-wrapper"><a href="#" class="left-sidebar-toggle">Orders</a>
+      <div class="left-sidebar-spacer">
+        <div class="left-sidebar-scroll">
+          <div class="left-sidebar-content">
+            <ul class="sidebar-elements">
+              <li class="divider">Menu</li>
+                <li ><a href="/"><i class="icon mdi mdi-home"></i><span>Dash Board</span></a>
+                </li>
+                 <li><a href="/history"><i class="icon mdi mdi-time-restore"></i><span>History</span></a>
+                 </li>
+                <li><a href="/inventory"><i class="icon mdi mdi-local-grocery-store"></i><span>Inventory</span></a>
+                 </li>
+                 <li class="active"><a href="/marketing">Marketing</li>
+                 <li><a href="/pharmacy"><i class="icon mdi mdi-local-grocery-store"></i><span>Pharmacy</span></a>
+                 </li>
+                 <li class="parent"><a href="#"><i class="icon mdi mdi-accounts-add"></i><span>Add Members</span></a>
+                   <ul class="sub-menu"> 
+                     <li><a href="/addRetailer">Add Retailer</a>
+                     </li>
+                     <li><a href='/addDistributor'>Add Distrbutor</a>
+                     </li>
+                     <li><a href="/addSalesPerson">Add Sales Person</a>
+                     </li>
+                   </ul>  
+                 </li>
+                 <li class="parent"><a href=""><i class="icon mdi mdi-chart"></i><span>Charts</span></a>
+                  <ul class="sub-menu"> 
+                    <li><a href="/sales_dashboard">Monthly-sales</a>
+                    </li>
+                    <li><a href="/area_dashboard">Area-sales</a>
+                    </li>
+                    <li><a href='pharmacy_dashboard'>pharmacies</a>
+                    </li>
+                    <li><a href="delivery_dashboard">deliveries</a>
+                    </li>
+                  </ul>  
+                </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+   </div>   
+  </div>
+<div class="be-content">
+<div class="container"  style="margin: 60px;">
+    <form action="/camp" method="post">
+                <div class="form-group">
+                        <label for="name"><strong> Campaign Name</strong></label><br>
+                        <input type="text" name="name" id="name" required>
+                </div>
+                <div class="form-group">
+                        <label for="type"><strong> Campaign Type&nbsp;</strong></label><br>
+                        <select name="type" id="type">
+                            <option value="Promotional">Promotional</option>
+                            <option value="Transactional">Transactional</option>
+                        </select>
+                </div>
+                <div class="form-group">
+                        <label for="content"><strong> Campaign Content</strong></label><br>
+                        <textarea name="content" id="content" cols="30" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn btn-primary" value="SUBMIT" name="submit" id="submit">
+                </div>
+    </form>
+</div>    
+</div>

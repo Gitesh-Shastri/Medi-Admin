@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const app = express();
 const bodyParser = require('body-parser');
 const Pharmacy = require('./models/pharmacy');
+const Camp = require('./models/camp');
 const Product = require('./models/Product');
 const InventoryProduct = require('./models/InventoryProduct');
 const ProductAndMedi = require('./models/productandmedi');
@@ -58,6 +59,26 @@ app.get('/addRetailer', isLoggedIn, (req, res, next) => {
 
 app.get('/addDistributor', isLoggedIn , (req, res, next) => {
     res.render('addDistrbutor');
+});
+
+app.post('/camp', (req, res, next) => {
+    var camp = new Camp(req.body).save((err, doc) => {
+        if(err) {
+            console.log(err);
+        } else {
+            console.log(doc);
+        }
+    });
+    res.redirect('/marketing');
+});
+
+app.get('/marketing', (req, res, next) => {
+    Camp.find().exec().then(doc => {
+        console.log(doc[doc.length-1]);;
+    }).catch(err => {
+        console.log(err);
+    });
+    res.render('marketing');
 });
 
 app.get('/resetPass', isLoggedIn, (req, res, next) => {
