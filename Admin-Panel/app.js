@@ -17,6 +17,16 @@ const User = require('./models/user');
 const moment = require('moment');
 var nodeoutlook = require('nodejs-nodemailer-outlook');
 const MONGODB_URI = "mongodb://GiteshMedi:shastri1@ds263590.mlab.com:63590/medicento";
+
+var admin = require("firebase-admin");
+
+var serviceAccount = require("./medicentomessaging-firebase-adminsdk-rkrq1-547a4adcde.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://medicentomessaging.firebaseio.com"
+});
+
 mongoose.connect(MONGODB_URI);
 mongoose.Promise = global.Promise;
 
@@ -66,6 +76,23 @@ app.post('/camp', (req, res, next) => {
         if(err) {
             console.log(err);
         } else {
+            var payload = {
+                data: {
+                    title: req.body.name,
+                    content: req.body.content
+                }
+            };
+            var option = {
+                priority: "high",
+                timeToLive: 60*60*24
+            };
+            admin.messaging().sendToTopic("all", payload, option)
+            .then( (response) => {
+                console.log("Successfully send : " + JSON.stringify(response));
+            })
+            .catch(err => {
+                console.log(err);
+            })
             console.log(doc);
         }
     });
@@ -74,7 +101,7 @@ app.post('/camp', (req, res, next) => {
 
 app.get('/marketing', (req, res, next) => {
     Camp.find().exec().then(doc => {
-        console.log(doc[doc.length-1]);;
+        console.log(doc[doc.length-1]);
     }).catch(err => {
         console.log(err);
     });
