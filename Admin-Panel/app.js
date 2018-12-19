@@ -1,30 +1,34 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const app = express();
-const bodyParser = require('body-parser');
-const Pharmacy = require('./models/pharmacy');
-const Camp = require('./models/camp');
-const Product = require('./models/Product');
-const InventoryProduct = require('./models/InventoryProduct');
-const ProductAndMedi = require('./models/productandmedi');
-const Inventory = require('./models/Inventory');
-const OrderItem = require('./models/SalesOrderItem');
-const Order = require('./models/SalesOrder');
-const profile = require('./models/profile');
-const passport = require('passport');
+const nodeoutlook = require('nodejs-nodemailer-outlook');
 const LocalStrategy = require('passport-local');
-const User = require('./models/user');
+const bodyParser = require('body-parser');
+const admin = require("firebase-admin");
+const favicon = require('serve-favicon');
+const passport = require('passport');
+const mongoose = require('mongoose');
+const express = require('express');
 const moment = require('moment');
-var nodeoutlook = require('nodejs-nodemailer-outlook');
+const path = require('path');
+
+const Order = require('./models/SalesOrder');
+const Pharmacy = require('./models/pharmacy');
+
+const SalesPerson = require('./models/sperson');
+
+const User = require('./models/user');
+
+const SalesOrder = require('./models/SalesOrderItem');
+
+const vpimedicine = require('./models/vpimedicine');
+
+const app = express();
+
 const MONGODB_URI = "mongodb://GiteshMedi:shastri1@ds263590.mlab.com:63590/medicento";
 
-var admin = require("firebase-admin");
-
-var serviceAccount = require("./medicentomessaging-firebase-adminsdk-rkrq1-547a4adcde.json");
+const serviceAccount = require("./medicentomessaging-firebase-adminsdk-rkrq1-547a4adcde.json");
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://medicentomessaging.firebaseio.com"
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://medicentomessaging.firebaseio.com"
 });
 
 mongoose.connect(MONGODB_URI);
@@ -35,288 +39,197 @@ app.use(require('express-session')({
     resave: false,
     saveUninitialized: false
 }));
+
+app.use(favicon(path.join(__dirname, 'public/assets/img', 'logo.ico')));
+
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+
 app.set('view engine', 'ejs');
 
-app.use(express.static(__dirname + '/public'))
+app.use(express.static(__dirname + '/public'));
 app.locals.moment = moment;
 
-app.use((req, res, next) => {
-    res.locals.currentUser = req.user;
-    next();
-});
+var active = 'index';
 
-app.get('/history', isLoggedIn , (req, res, next) => {
-    Order.find({}).populate('pharmacy_id').populate('order_items').exec((err, orders) => {
-        res.render('history', {orders: orders});
+
+app.use('/retriveItems', function (req, res, next) {
+    var dict = {};
+
+    function sortProperties(obj) {
+        // convert object into array
+        var sortable = [];
+        for (var key in obj)
+            if (obj.hasOwnProperty(key))
+                sortable.push([key, obj[key]]); // each item is an array in format [key, value]
+
+        // sort items by value
+        sortable.sort(function (a, b) {
+            var x = a[1],
+                y = b[1];
+            return x < y ? 1 : x > y ? -1 : 0;
         });
-    });
-app.get('/inventory', isLoggedIn, (req, res, next) => {
-    ProductAndMedi.find({}).populate('product_id').populate('inventory_product_id').exec((err, pros) => {
-        res.render('inventory', {pros: pros});
-    });
-});
-
-app.get('/addRetailer', isLoggedIn, (req, res, next) => {
-    res.render('addRetailer');
-});
-
-app.get('/addDistributor', isLoggedIn , (req, res, next) => {
-    res.render('addDistrbutor');
-});
-
-app.post('/camp', (req, res, next) => {
-    var camp = new Camp(req.body).save((err, doc) => {
-        if(err) {
-            console.log(err);
-        } else {
-            var payload = {
-                data: {
-                    title: req.body.name,
-                    content: req.body.content
-                }
+        return sortable; // array in format [ [ key1, val1 ], [ key2, val2 ], ... ]
+    }
+    SalesOrder.find().exec().then(function (order_items) {
+        for (var i in order_items) {
+            var key = order_items[i].medicento_name;
+            var quant = order_items[i].quantity;
+            if (typeof dict[key] !== 'undefined') {
+                dict[key] = dict[key] + quant;
+            } else {
+                dict[key] = quant;
             };
-            var option = {
-                priority: "high",
-                timeToLive: 60*60*24
-            };
-            admin.messaging().sendToTopic("all", payload, option)
-            .then( (response) => {
-                console.log("Successfully send : " + JSON.stringify(response));
-            })
-            .catch(err => {
-                console.log(err);
-            })
-            console.log(doc);
-        }
+        };
+        dict = sortProperties(dict);
+        res.status(200).json(dict);
     });
-    res.redirect('/marketing');
 });
 
-app.get('/marketing', (req, res, next) => {
-    Camp.find().exec().then(doc => {
-        console.log(doc[doc.length-1]);
+app.use('/history', (req, res, next) => {
+    active = 'history';
+    Order.find().populate('pharmacy_id').exec().then((orders) => {
+        res.render('history', {
+            orders: orders,
+            active: active
+        });
     }).catch(err => {
         console.log(err);
     });
-    res.render('marketing');
 });
 
-app.get('/resetPass', isLoggedIn, (req, res, next) => {
-    res.render('resetPass');
+app.use('/inventory', (req, res, next) => {
+    active = 'inventory';
+    vpimedicine.find().exec().then(medicines => {
+        res.render('inventory', {
+            medicines: medicines,
+            active: active
+        });
+    }).catch(err => {
+        console.log(err);
+        res.render('inventory');
+    });
 });
 
-app.get('/contact', isLoggedIn, (req, res, next) => {
-    res.render('contact');
+app.use('/marketing', (req, res, next) => {
+    active = 'marketing';
+    res.render('marketing', {
+        active: active
+    });
 });
 
-app.get('/addSalesPerson', isLoggedIn, (req, res, next) => {
-    res.render('addSalesPerson');
+app.post('/mailOrder', (req, res, next) => {
+    Order.findById(req.body.order_id).populate('pharmacy_id').populate('order_items').exec().then((doc) => {
+        SalesPerson.findById(doc.sales_person_id).populate('user').exec().then((salesPerson) => {
+            time = moment(doc.created_at).add(30, 'm');
+            time1 = moment(time).add(5, 'h');
+            var csv = "Party Code, Item Code, Item Name, Qty\n";
+            console.log(doc);
+            content = "Order From " + doc.pharmacy_id.pharma_name + " on " + moment(time1).format('LLLL');
+            message = '<h3>From Admin Panel :</h3><h3>Pharmacy Name :' + doc.pharmacy_id.pharma_name + '</h3><h5>Medicine List : </h5>';
+            message += '<table border="1"><tr><th>Item Name</th><th><Item Code/th><th>Quantity</th></tr>';
+            doc.order_items.forEach((items) => {
+                csv +=
+                    salesPerson.user.useremail +
+                    "," +
+                    items.code +
+                    "," +
+                    items.medicento_name +
+                    "," +
+                    items.quantity +
+                    "\n";
+                message += '<tr><td>' + items.medicento_name + '</td><td>' +
+                    items.code + '</td><td>' +
+                    items.quantity + '</td></tr>';
+            });
+            nodeoutlook.sendEmail({
+                auth: {
+                    user: "giteshshastri123@outlook.com",
+                    pass: "shastri@1"
+                },
+                from: "giteshshastri123@outlook.com",
+                to: req.body.email,
+                subject: content,
+                html: message,
+                attachments: [{
+                    filename: "SalesOrder_Medicento_" +
+                        doc.pharma_name +
+                        "_" +
+                        moment(time1).format('LLL') +
+                        ".csv",
+                    content: csv
+                }]
+            });
+        });
+        res.status(200).json("Mail Sent");
+    });
 });
 
-app.get('/setting', isLoggedIn, (req, res, next) => {
-    res.render('setting');
+app.post('/changeStatus', (req, res, next) => {
+    Order.findById(req.body.order_id).exec().then((doc) => {
+        doc.status = req.body.status;
+        doc.save();
+        res.status(200).json(doc);
+    });
 });
 
-//User Routes for login,logout,signup and profile
-
-app.get('/profile', isLoggedIn, (req, res, next) => {
-    res.render('profile');
-});
+app.post("/changeSate", function (req, res) {
+    Order.findById(req.body.order_id).exec().then((doc) => {
+        doc.state = req.body.state;
+        doc.save();
+        res.status(200).json(doc);
+    });
+})
 
 app.get('/login', (req, res, next) => {
-    res.render('profile-login');
+    res.render('login');
 });
 
-app.post('/login', passport.authenticate("local", { successRedirect: "/" , failureRedirect: "/login"}), (req, res) => {
+app.get('/signUp', (req, res, next) => {
+    res.render('signup');
 });
 
-app.get('/signup', (req, res, next) => {
-    res.render('pages-sign-up');
-});
-
-app.post('/signup', (req, res) => {
-    const newUser = new User({
-        username: req.body.nick,
-        useremail: req.body.email,
-    });
-    User.register(newUser, req.body.pass, function (err, user) {
-        if (err) {
-            console.log(err);
-            return res.render('pages-sign-up');
-        }
-        res.redirect('/profile');
-    });
-    });
-
-app.get('/logout', (req, res) => {
-    req.logout();
-    res.redirect('/');
-});
-
-app.get('/forgot-password', (req, res, next) => {
-    res.render('pages-forgot-password');
-});
-
-
-// -------- Dashboards - routes ---------------------- 
-
-app.get('/sales_dashboard', isLoggedIn, (req, res) => {
-    res.render('sales_dashboard');
-});
-
-app.get('/area_dashboard', isLoggedIn, (req, res) => {
-    res.render('area_dashboard');
-});
-
-app.get('/delivery_dashboard', isLoggedIn, (req, res) => {
-    res.render('delivery_index');
-});
-
-app.get('/pharmacy_dashboard', isLoggedIn, (req, res) => {
-    res.render('pharmacy_dashboard');
-});
-
-// -------------pharmacy route-----------
-app.get('/pharmacy', (req, res) => {
-    Order.find({}, (err, orders) => {
-        if(err){
-            return console.log(err);
-        }
-        Pharmacy.find({}, (err, pharmacies) => {
-            if(err){
-                return console.log(err)
+app.use('/', (req, res, next) => {
+    active = 'index';
+    activeOrders = [];
+    cancelOrders = [];
+    returnsOrders = [];
+    deliveredOrders = [];
+    unDeliveredOrders = [];
+    Order.find().populate('pharmacy_id').populate('order_items').exec().then((orders) => {
+        orders.forEach((order) => {
+            if (order.status == 'Active') {
+                activeOrders.push(order);
             }
-            var pharmacy_list = []
-            pharmacies.forEach((pharmacy) => {
-                var name = pharmacy.pharma_name;
-                var id = pharmacy._id;
-                var totalAmount = paidAmount = balanceAmount = returnAmount = 0;
-
-                filteredOrders = orders.filter((order) => {
-                    return id.equals(order.pharmacy_id)
-                });
-                // console.log(filteredOrders)
-                var totalOrders = filteredOrders.length;
-                filteredOrders.forEach((order) => {
-                    totalAmount += +order.grand_total;
-                });
-                pharmacy_list.push({name, id, totalAmount, paidAmount, balanceAmount, returnAmount, totalOrders})
-            });
-            // console.log(pharmacy_list);
-            res.render('pharmacy_list', {pharmacy_list});
-        });
-    })
-});
-
-//----------------index - route ---------------------
-app.post('/changeS', (req, res, next) => {
-    if(req.body.state == "Decline") {  
-    Order.findOneAndUpdate({_id: req.body.order_id}, {$set:{state: req.body.state, status: "Canceled"}}, {new: true}, (err, doc) => {
-        if(err) {
-            console.log(err);
-        } else {
-            console.log(doc);
-        }
-        res.redirect('/');
-    })
-    } else {
-    Order.findOneAndUpdate({_id: req.body.order_id}, {$set:{state: req.body.state}}, {new: true}, (err, doc) => {
-        if(err) {
-            console.log(err);
-        } else {
-            console.log(doc);
-        }
-        res.redirect('/');
-    })
-    }
-});
-
-app.get('/:id/mail', (req, res, next) => {
-    Order.findOne({ _id:req.params.id}).populate('pharmacy_id').populate('order_items').exec()
-    .then((doc) => {
-        time = moment(doc.created_at).add(30, 'm');
-        time1 = moment(time).add(5, 'h');
-        message = '<h3>From Admin Panel :</h3><h3>Pharmacy Name :'+ doc.pharmacy_id.pharma_name +'</h3><h4>Area Name : Kormangla</h4><h5>Medicine List : </h5>';
-        message += '<table border="1"><tr><th>Medicine Name</th><th>Quantity</th><th>Cost</th></tr>';
-        for(i =0;i<doc.order_items.length;i++) {
-            message += '<tr><td>'+doc.order_items[i].medicento_name+'</td><td>'+doc.order_items[i].quantity+'</td><td>'+doc.order_items[i].total_amount+'</td></tr>'
-        }
-        nodeoutlook.sendEmail({
-            auth: {
-                user: "giteshshastri123@outlook.com",
-                pass: "shastri@1"
-            }, from: 'giteshshastri123@outlook.com', //  
-            to: 'giteshshastri96@gmail.com, Contact.medicento@gmail.com, rohit@medicento.com, miniintl@rediffmail.com, giteshmedicento@gmail.com ',
-            subject: 'Order From Medicento On ' + moment(time1).format('LLLL'),
-            html: message + '</table><p>Billing Total : ' +doc.grand_total + '</p>',
-        });
-        console.log(message);
-        res.redirect('/');
-     })
-    .catch((err) => {
-        console.log('not sent' + err);
-        res.redirect('/');
-    });
-});
-
-app.post('/:id/delete', (req, res, next) => {
-    Order.findOne({ _id:req.params.id}).populate('pharmacy_id').populate('order_items').exec()
-    .then((doc) => {
-            doc.remove();
-            res.redirect('/');
+            if (order.status == 'Canceled') {
+                cancelOrders.push(order);
+            }
+            if (order.status == 'Delivered') {
+                deliveredOrders.push(order);
+            }
+            if (order.status == 'Returns') {
+                returnsOrders.push(order);
+            }
+            if (order.status == '"Not Delivered') {
+                unDeliveredOrders.push(order);
+            }
         })
-        .catch((err) => {
-            console.log(err);
-            res.redirect('/');
+        res.render('index', {
+            orders: orders,
+            active: active,
+            activeOrders: activeOrders,
+            cancelOrders: cancelOrders,
+            deliveredOrders: deliveredOrders,
+            returnsOrders: returnsOrders
         });
-});
-
-app.get('/', (req, res, next) => {
-    Order.find({}).populate('pharmacy_id').exec((err, orders) => {
-        Order.find({ status: 'Canceled' }).populate('pharmacy_id').populate('order_items').exec((err, canceldOrders) => {
-            Order.find({ status: 'Delivered' }).populate('pharmacy_id').populate('order_items').exec((err, deliverOrders) => {
-                Order.find({ status: 'Active' }).populate('pharmacy_id').populate('order_items').exec((err, activeOrders) => {
-                    res.render('index', { order_count: orders.length, 
-                        orders, activeOrders, canceldOrders,deliverOrders,
-                        order_delivered: deliverOrders.length,
-                        order_active: activeOrders.length,
-                        order_cancel: canceldOrders.length,
-                        order_returns: 0,
-                        order_sales: 10
-                    });
-                });
-        });
-    });
+    }).catch(err => {
+        console.log(err);
     });
 });
-
-
-app.post('/', (req, res, next) => {
-    Order.findOneAndUpdate({_id: req.body.order_id}, {$set:{status: req.body.status}}, {new: true}, (err, doc) => {
-        if(err) {
-            console.log(err);
-        } else {
-            console.log(doc);
-        }
-        res.redirect('/');
-    })
-});  
-function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.redirect('/login');
-};
-
-
-
-
 
 module.exports = app;

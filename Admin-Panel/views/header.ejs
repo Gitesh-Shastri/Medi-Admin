@@ -1,90 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
+    <!-- Required meta tags always come first -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="shortcut icon" href="assets/img/logo.ico">
-    <title>Medicento</title>
-    <link rel="stylesheet" type="text/css" href="assets/lib/perfect-scrollbar/css/perfect-scrollbar.min.css"/>  
-    <link rel="stylesheet" type="text/css" href="assets/lib/material-design-icons/css/material-design-iconic-font.min.css"/><!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-    <link rel="stylesheet" href="assets/css/style.css" type="text/css"/>
-    <link rel="stylesheet" type="text/css" href="assets/lib/datatables/css/dataTables.bootstrap.min.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Medicento Admin</title>
 
-  </head>
-  <body>
-    <div class="be-wrapper">
-      <nav class="navbar navbar-default navbar-fixed-top be-top-header">
-        <div class="container-fluid">
-          <div class="navbar-header"><a href="/" class="navbar-brand"></a></div>
-          <div class="be-right-navbar">
-            <ul class="nav navbar-nav navbar-right be-user-nav">
-			<% if (!currentUser) { %>
-			    <li><a href="/signup"><span class="icon mdi mdi-skip-next"></span> SignUp</a></li>
-                  <li><a href="/login"><span class="icon mdi mdi-sign-in"></span> Login</a></li>
-              	  <% } else { %>
-              <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle"><img src="assets/img/avatar.png" alt="Avatar"></a>
-                <ul role="menu" class="dropdown-menu">
-                  <li>
-                    <div class="user-info">
-					  <div class="user-name"><%= currentUser.username %></div>
-                      <div class="user-position online">Available</div>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+
+    <!-- Bootstrap core CSS -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Material Design Bootstrap -->
+    <link href="assets/css/mdb.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css ">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/snackbar.min.css" />
+</head>
+
+<body class="fixed-sn black-skin">
+
+    <!--Double navigation-->
+    <header>
+        <!-- Sidebar navigation -->
+        <div id="slide-out" class="side-nav sn-bg-4 fixed">
+            <ul class="custom-scrollbar">
+                <!-- Logo -->
+                <li>
+                    <div class="logo-wrapper waves-light">
+                        <a href="/"><img src="assets/img/resize-logo.png" class="img-fluid flex-center"></a>
                     </div>
-                  </li>
-                  <li><a href="/profile"><span class="icon mdi mdi-face"></span> Account</a></li>
-                  <li><a href="/setting"><span class="icon mdi mdi-settings"></span> Settings</a></li>
-				  <li><a href="/logout"><span class="icon mdi mdi-power"></span> Logout</a></li>
-                </ul>
-              </li>
-			  <% } %>
+                </li>
+                <!-- Side navigation links -->
+                <li>
+                    <ul class="collapsible collapsible-accordion">
+                        <% if(active == 'index') { %>
+                        <li class="active">
+                            <% } %>
+                            <a href="/" class="collapsible-header waves-effect active"><i class="fa fa-home"></i>
+                                Dashboard</a>
+                        </li>
+                        <% if(active == 'history') { %>
+                        <li class="active">
+                            <% } %>
+                            <a href="/history" class="collapsible-header waves-effect active"><i class="fa fa-history"></i>
+                                History</a>
+                        </li>
+                        <% if(active == 'inventory') { %>
+                        <li class="active">
+                            <% } %>
+                            <a href="/inventory" class="collapsible-header waves-effect active"><i class="fa fa-cart-arrow-down"></i>
+                                Inventory</a>
+                        </li>
+                        <% if(active == 'marketing') { %>
+                        <li class="active">
+                            <% } %>
+                            <a href="/marketing" class="collapsible-header waves-effect active"><i class="fa fa-envelope"></i>
+                                Marketing</a>
+                        </li>
+                        <li><a href="" class="collapsible-header waves-effect"><i class="fa fa-medkit"></i>
+                                Pharmacies</a>
+                        </li>
+                        <li><a class="collapsible-header waves-effect arrow-r"><i class="fa fa-user-plus"></i>
+                                Add Members<i class="fa fa-angle-down rotate-icon"></i></a>
+                            <div class="collapsible-body">
+                                <ul class="list-unstyled">
+                                    <li><a href="#" class="waves-effect">Add Retailer</a>
+                                    </li>
+                                    <li><a href="#" class="waves-effect">Add Distributor</a>
+                                    </li>
+                                    <li><a href="#" class="waves-effect">Add Sales Person</a>
+                                    </li>
+                                    <li><a href="#" class="waves-effect">Add Delivery Person</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+                <!--/. Side navigation links -->
             </ul>
-			<% if(!currentUser){ %>
-			<% } else { %>
-			<ul class="nav navbar-nav navbar-right be-icons-nav">
-              <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle"><span class="icon mdi mdi-notifications"></span><span class="indicator"></span></a>
-                <ul class="dropdown-menu be-notifications">
-                  <li>
-                    <div class="title">Notifications<span class="badge">1</span></div>
-                    <div class="list">
-                      <div class="be-scroller">
-                        <div class="content">
-                          <ul>
-                            <li class="notification notification-unread"><a href="#">
-                                <div class="image"><img src="assets/img/avatar2.png" alt="Avatar"></div>
-                                <div class="notification-info">
-                                  <div class="text"><span class="user-name">Jessica Caruso</span> accepted your invitation to join the team.</div><span class="date">2 min ago</span>
-                                </div></a></li>
-                            <li class="notification"><a href="#">
-                                <div class="image"><img src="assets/img/avatar3.png" alt="Avatar"></div>
-                                <div class="notification-info">
-                                  <div class="text"><span class="user-name">Joel King</span> is now following you</div><span class="date">2 days ago</span>
-                                </div></a></li>
-                            <li class="notification"><a href="#">
-                                <div class="image"><img src="assets/img/avatar4.png" alt="Avatar"></div>
-                                <div class="notification-info">
-                                  <div class="text"><span class="user-name">John Doe</span> is watching your main repository</div><span class="date">2 days ago</span>
-                                </div></a></li>
-                            <li class="notification"><a href="#">
-                                <div class="image"><img src="assets/img/avatar5.png" alt="Avatar"></div>
-                                <div class="notification-info"><span class="text"><span class="user-name">Emily Carter</span> is now following you</span><span class="date">5 days ago</span></div></a></li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="footer"> <a href="#">View all notifications</a></div>
-                  </li>
-                </ul>
-              </li>
-             </ul>
-			 <% } %>
-              </li>
-            </ul>
-          </div>
+            <div class="sidenav-bg mask-strong"></div>
         </div>
-      </nav>
-
+        <!--/. Sidebar navigation -->
+        <!-- Navbar -->
+        <nav class="navbar fixed-top navbar-toggleable-md navbar-expand-lg scrolling-navbar double-nav">
+            <!-- SideNav slide-out button -->
+            <div class="float-left">
+                <a href="" data-activates="slide-out" class="button-collapse"><i class="fa fa-bars"></i> Medicento</a>
+            </div>
+            <ul class="nav navbar-nav nav-flex-icons ml-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        Profile
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="/login">Login</a>
+                        <a class="dropdown-item" href="/signUp">Sign Up</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.Navbar -->
+    </header>
+    <!--/.Double navigation-->

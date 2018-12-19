@@ -1,9 +1,15 @@
 const mongoose = require('mongoose');
-
 const SalesOrderSchema = mongoose.Schema({
+	sales_order_id: mongoose.Schema.Types.ObjectId,
 	parent_order_id: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'SalesOrder'
+	},
+	sales_order_code: {
+		type: String
+	},
+	sales_order_parent_code: {
+		type: String
 	},
 	order_items: [
 		{
@@ -74,6 +80,10 @@ const SalesOrderSchema = mongoose.Schema({
 	},
 	google_analytics_track_id: {
 		type: String
+	},
+	delivery_date: {
+		type: Date,
+		required: true
 	}
 });
 

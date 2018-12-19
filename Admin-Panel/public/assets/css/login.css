@@ -1,0 +1,78 @@
+* {
+    color: aliceblue;
+}
+
+#email {
+    padding-left: 40px;
+}
+
+.input-email {
+    position: relative;
+}
+
+.fa-envelope {
+    color: #4389A2;
+}
+
+.input-email i {
+    position: absolute;
+    left: 0;
+    top: 33px;
+    padding: 9px 8px;
+}
+
+
+.input-email #email:focus+i {
+    color: red;
+}
+
+#pwd {
+    padding-left: 40px;
+}
+
+.input-pwd {
+    position: relative;
+}
+
+.fa-lock {
+    color: #4389A2;
+}
+
+.input-pwd #pwd:focus+i {
+    color: red;
+}
+
+.link {
+    color: aliceblue;
+    cursor: pointer;
+}
+
+.link: :hover {
+    color: aliceblue;
+}
+
+.input-pwd i {
+    position: absolute;
+    left: 0;
+    top: 33px;
+    padding: 9px 8px;
+}
+
+body {
+    background: #f857a6;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #ff5858, #f857a6);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #ff5858, #f857a6);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+}
+
+#form-container {
+    border: 0px solid #fff;
+    padding: 50px 60px;
+    margin-top: 20vh;
+    -webkit-box-shadow: -1px 4px 26px 11px rgba(0, 0, 0, .75);
+    -moz-box-shadow: -1px 4px 26px 11px rgba(0, 0, 0, .75);
+    box-shadow: -1px 4px 26px 11px rgba(0, 0, 0, .75);
+}

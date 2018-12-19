@@ -1,20 +1,29 @@
 const mongoose = require('mongoose');
+var Float = require('mongoose-float').loadType(mongoose);
 
 const personSchema = mongoose.Schema({
-    _id: mongoose.Schema.Types.ObjectId,
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: 'User'
     },
     Name: {
-        type: String,
-        required: true
+        type: String
     },
     Allocated_Area: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Area",
-        required: true
+        ref: "Area"
+    },
+    Allocated_Pharma: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Pharmacy"
+    },
+    commission: {
+        type: Number,
+        default: 0.22
+    },
+    Return_value: {
+        type: Number,
+        default: 0
     },
     Total_sales: {
         type: Number,
