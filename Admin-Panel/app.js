@@ -160,7 +160,7 @@ app.post("/mailOrder", (req, res, next) => {
             doc.pharmacy_id.pharma_name +
             "</h3><h5>Medicine List : </h5>";
           message +=
-            '<table border="1"><tr><th>Item Name</th><th><Item Code/th><th>Quantity</th></tr>';
+            '<table border="1"><tr><th>Item Name</th><th><Item Code</th><th>Quantity</th></tr>';
           doc.order_items.forEach((items) => {
             csv +=
               salesPerson.user.useremail +
