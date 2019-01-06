@@ -8,13 +8,13 @@ const mongoose = require("mongoose");
 const express = require("express");
 const moment = require("moment");
 const path = require("path");
+const adminUser = require('./models/adminUser');
 
 const Order = require("./models/SalesOrder");
-const Pharmacy = require("./models/pharmacy");
 
 const SalesPerson = require("./models/sperson");
 
-const User = require("./models/user");
+const Pharmacy = require('./models/pharmacy');
 
 const SalesOrder = require("./models/SalesOrderItem");
 
@@ -35,18 +35,18 @@ admin.initializeApp({
 mongoose.connect(MONGODB_URI);
 mongoose.Promise = global.Promise;
 
-app.use(
-  require("express-session")({
-    secret: "Gitesh Secret Page",
-    resave: false,
-    saveUninitialized: false
-  })
-);
-
-app.use(favicon(path.join(__dirname, "public/assets/img", "logo.ico")));
-
+app.use(require('express-session')({
+  secret: "Gitesh Secret Page",
+  resave: false,
+  saveUninitialized: false
+}));
 app.use(passport.initialize());
 app.use(passport.session());
+passport.use(new LocalStrategy(adminUser.authenticate()));
+passport.serializeUser(adminUser.serializeUser());
+passport.deserializeUser(adminUser.deserializeUser());
+
+app.use(favicon(path.join(__dirname, "public/assets/img", "logo.ico")));
 
 app.use(bodyParser.json());
 app.use(
@@ -96,7 +96,7 @@ app.use("/retriveItems", function(req, res, next) {
     });
 });
 
-app.use("/history", (req, res, next) => {
+app.use("/history", isLoggedIn, (req, res, next) => {
   active = "history";
   Order.find()
     .populate("pharmacy_id")
@@ -112,7 +112,7 @@ app.use("/history", (req, res, next) => {
     });
 });
 
-app.use("/inventory", (req, res, next) => {
+app.use("/inventory", isLoggedIn,  (req, res, next) => {
   active = "inventory";
   vpimedicine
     .find()
@@ -230,11 +230,19 @@ app.get("/login", (req, res, next) => {
   res.render("login");
 });
 
+app.post('/login', passport.authenticate("local", { successRedirect: "/" , failureRedirect: "/login"}), (req, res) => {
+});
+
 app.get("/signUp", (req, res, next) => {
   res.render("signup");
 });
 
-app.use("/", (req, res, next) => {
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+});
+
+app.use("/", isLoggedIn, (req, res, next) => {
   active = "index";
   activeOrders = [];
   cancelOrders = [];
@@ -276,5 +284,12 @@ app.use("/", (req, res, next) => {
       console.log(err);
     });
 });
+
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated()) {
+      return next();
+  }
+  res.redirect('/login');
+};
 
 module.exports = app;
