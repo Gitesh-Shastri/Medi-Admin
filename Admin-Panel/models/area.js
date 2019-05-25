@@ -17,6 +17,10 @@ const areaSchema = mongoose.Schema({
 	area_pincode: {
 		type:String,
 		required: true
+	},
+	created_at: {
+		type: Date,
+		default: Date.now()
 	}
 });
 

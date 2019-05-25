@@ -1,0 +1,84 @@
+<% include header.ejs %>
+
+<!--Main layout-->
+<main>
+    <h3 class="d-flex justify-content-center">Active Orders</h3>
+        <table class="tableData" class="table responsive-table">
+            <thead>
+                <th>Id</th>
+                <th>UserID</th>
+                <th>UserCode</th>
+                <th>pharmaID</th>
+                <th>Retailer</th>
+                <th>Address</th>
+            </thead>
+            <tbody>
+                <% docs.forEach( (doc) => { %>
+                <tr>
+                    <td>
+                        <%= doc.id %>
+                    </td>
+                    <% if(doc.user != null ) { %>
+                        <td >
+                            <%= doc.user._id %>
+                        </td>
+                        <td >
+                        <%= doc.user.usercode %>
+                    </td>
+                    <% } else { %>
+                        <td></td>
+                        <td></td>
+                    <% }%> 
+                    <% if(doc.Allocated_Pharma != null ) { %>
+                           <td>
+                                <%= doc.Allocated_Pharma._id %>
+                           </td>
+                           <td>
+                           <%= doc.Allocated_Pharma.pharma_name %>
+                            </td>
+                            <td>
+                        <%= doc.Allocated_Pharma.pharma_address %>
+                    </td>
+                        
+                    <% } else { %>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    <% }%> 
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+</main>
+
+<% include footer.ejs %>
+
+<script>
+  // SideNav Initialization
+  $(".button-collapse").sideNav();
+  new WOW().init();
+  $(document).ready(function () {
+    $('.tableData').DataTable({});
+  });
+  function deleteID(data1) {
+    var order = {
+      sid: data1
+    };
+    $.ajax({
+      url: 'pharmaandsales/',
+      type: 'POST',
+      data: order,
+      success: (data) => {
+        console.log('Sucess', data);
+        Snackbar.show({
+          text: "Chnage State Successful",
+          pos: 'top-left'
+        });
+      }
+    })
+  }
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Medicento Admin</title>
+    <!-- style sheets -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="/assets/css/custom.css" >
+
+</head>
+<body>
+    
+    <main class="Medicento_area">
+        <header>
+            <% include main_navbar.ejs %>
+        </header>
+        <h2 class="bg-primary text-center text-white p-3">Medicento Areas List</h2>
+        <div class="loader" id="loader">
+            <div class="loader_image">
+                Loading Data<img src="/assets/img/lg.comet-spinner.gif" alt="">
+            </div>
+        </div>
+        <section class="container">
+            <div class="search_area row my-3 mx-0">
+                <div class="state mr-3">
+                    <select name="state" id="state" onchange="change_city_dropdown(event)">
+                        <option value="" selected disabled>Select State</option>
+                        <% context.states.forEach(state => { %>
+                            <option value="<%= state.id %>"><%= state.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="city mr-3">
+                    <select name="city" id="city" onchange="change_area_dropdown(event)">
+                        <option value="" selected disabled>Select City</option>
+                        <% context.cities.forEach(city => { %>
+                            <option value="<%= city.name %>"><%= city.name %></option>
+                            <% }) %>
+                    </select>
+                </div>
+                <div class="area_name mr-3">
+                    <input type="text" name="area_name" id="area_name" placeholder="Enter Area"/>
+                </div>
+                <div class="area_pincode mr-3">
+                    <input type="text" name="area_pincode" id="area_pincode" placeholder="Enter Pincode"/>
+                </div>
+                <div class="area_submit">
+                    <button class="btn btn-success" onclick="addNewArea()">Add New Area</button>
+                </div>
+            </div>
+            <table id="area_table">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Area</th>
+                            <th>Pincode</th>
+                            <th>Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+            </table>
+        </section>
+    </main>
+    <% include scripts.ejs %>
+    <script>
+        function change_city_dropdown(event) {
+            $('#loader').show();
+            $.ajax({
+                type: "GET",
+                url: "/ajax/getCityByState",
+                data: { state_id: event.target.value},
+                cache: false,
+                success: function(data){
+                   $('#loader').hide();
+                    if(data.message.includes('cities found')) {
+                        $('#city').empty();
+                        $('#city').append('<option value="" selected disabled>Select City</option>');
+                        data.cities.forEach(city => {
+                            $('#city').append('<option value="'+city.name+'">'+city.name+'</option>')
+                        })
+                    }
+                }
+            });
+        }
+
+        function change_area_dropdown(event) {
+            $('#loader').show();
+            $.ajax({
+                type: "GET",
+                url: "/ajax/getAreaByCity",
+                data: { city: event.target.value},
+                cache: false,
+                success: function(data){
+                   $('#loader').hide();
+                   let area_mapping = $('#area_table tbody');
+                    area_mapping.empty();
+                    if(data.message.includes('areas found')) {
+                            data.areas.forEach(area => {
+                                area_mapping.append('<tr><td>'+area._id+'</td><td>'+area.area_name+'</td><td>'+area.area_pincode+'</td><td><button class="btn btn-info" onclick="editArea()">Edit</button></td></tr>')
+                        })
+                    }
+                }
+            });
+        }
+
+        function addNewArea() {
+
+            state = $('#state').val();
+            city = $('#city').val();
+            area_name = $('#area_name').val();
+            pincode = $('#area_pincode').val();
+
+            if(state == null || state.length == 0) {
+                alert('Please Select State')
+            } else if(city == null || city.length == 0) {
+                alert('Please Select City')
+            } else if(area_name == null || area_name.length == 0) {
+                alert('Please Select Area Name')
+            } else if(pincode == null || pincode.length == 0) {
+                alert('Please Enter Pincode')
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/ajax/addArea",
+                    data: { state: state, 
+                            city: city,
+                            area_name: area_name,
+                            pincode: pincode
+                    },
+                    cache: false,
+                    success: function(data){
+                    console.log(data);
+                    }
+                });
+            }
+        }
+
+        function editArea() {
+            
+        }
+
+        $(document).ready(function() {
+            $('#area_table').DataTable();
+        });
+    
+
+    </script>
+
+</body>
+</html>        
