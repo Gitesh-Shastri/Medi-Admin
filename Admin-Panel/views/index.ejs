@@ -54,7 +54,7 @@
                 <th>Pharma Code</th>
                 <th>Phone No.</th>
                 <th>Edit</th>
-                <th>View</th>
+                <th>View details</th>
             </thead>
             <tbody>
                 <% activeOrders.forEach( (order) => { time = moment(order.created_at).add(5, 'h'); time1 = moment(time).add(30, 'm'); %>
@@ -74,16 +74,17 @@
                   <td>
                     4325694934565430
                   </td>
-                    <td class="text-danger" style="cursor: pointer;">
-                        <span class="glyphicon glyphicon-pencil" data-toggle="modal" data-target="#o<%= order._id%>">edit</span>
+                    <td  style="cursor: pointer;">
+                        <span class="fa fa-pencil-square-o" data-toggle="modal" data-target="#o<%= order._id%>"></span>
                     </td>
-                    <td class="text-danger" style="cursor: pointer;">
-                        <span data-toggle="modal" data-target="#o<%= order._id%>">view details </span>
+                    <td  style="cursor: pointer;">
+                        <span class="fa fa-address-card" data-toggle="modal" data-target="#o<%= order._id%>"></span>
                     </td>
                 </tr>
                 <% }) %>
             </tbody>
         </table>
+      <% include modal_pharmacy_edit.ejs %>
       <% include modals_pharmacy.ejs %>
     </div>
 
