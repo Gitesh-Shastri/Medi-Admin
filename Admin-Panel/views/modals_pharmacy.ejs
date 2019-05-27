@@ -1,0 +1,37 @@
+<!--Pharmacy Detail view pop-up-->
+<% activeOrders.forEach((order) => { time = moment(order.created_at).add(5, 'h'); time1 = moment(time).add(30, 'm'); %>
+
+<div id="o<%= order._id %>" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-warning" style = "font-family: Time new roman;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="text-align:left;">No of distributor: 4 </h5>
+            </div>
+                    <!--------- Distributor table ------------ -->
+                    <div class="row">
+                        <div class="col-xs-12 table-responsive">
+                            <table class="table  table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th>Pharmacy name</th>
+                                        <th>distributor code</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            Test pharmacy
+                                        </td>
+                                        <td>
+                                            22
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+        </div>
+    </div>
+</div>
+
+<% })%>
