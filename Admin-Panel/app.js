@@ -473,7 +473,7 @@ app.get('/login', (req, res, next) => {
 });
 
 app.post('/login', (req, res, next) => {
-	if ((req.body.username = 'Medi-Team-Admin' && req.body.password)) {
+	if (req.body.username == 'Medi-Team-Admin' && req.body.password == 'MediTech') {
 		res.redirect('/');
 	}
 });
