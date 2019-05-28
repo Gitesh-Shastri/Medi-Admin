@@ -1,0 +1,32 @@
+<!--Pharmacy edit pop-up-->
+<% activeOrders.forEach((order) => { time = moment(order.created_at).add(5, 'h'); time1 = moment(time).add(30, 'm'); %>
+
+<div id="o<%= order._id %>" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-warning" style = "font-family: Time new roman;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4> EDIT</h4>
+            </div>
+                <div class="modal-body">
+                    <ul>
+                       <li>Pharamacy Name:  test</li>
+                       <li>State:           test</li>
+                       <li>City:            test</li>
+                       <li>Pharma Code:     test</li>
+                       <form >
+                           Phone Number :
+                        <input type="text" name="phone_no" id="<%= order._id %>" placeholder="phone number">
+                        <button type="button" data-dismiss="modal" class="btn btn-danger" onclick="sendMai('<%= order._id %>')">Submit</button>
+                        </form>
+                   </ul>
+                </div>
+                <div class="modal-footer">
+                   <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<% })%>
