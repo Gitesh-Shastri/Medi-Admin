@@ -40,7 +40,7 @@ admin.initializeApp({
 	databaseURL: 'https://medicentomessaging.firebaseio.com'
 });
 
-mongoose.connect(MONGODB_URI);
+mongoose.connect(MONGODB_URI );
 mongoose.Promise = global.Promise;
 
 app.use(
@@ -172,7 +172,7 @@ app.get('/allArea', (req, res, next) => {
 		.then((areas) => {
 			res.render('areas', { areas: areas, moment: moment });
 		})
-		/* 
+		/*
   Area.remove({area_state: 'Karnataka', area_city: 'Bangalore Rural' })
   .exec()
   .then(doc => {
@@ -189,7 +189,7 @@ app.post('/deleteArea', (req, res, next) => {
 	/*  Area.findByIdAndRemove( '5c4cb632ec04c105a2969c82' , (err, doc) => {
       if(err) {
           console.log(err);
-          res.status(200).json({message : "error occured"});        
+          res.status(200).json({message : "error occured"});
       } else {
           res.status(200).json({message : "document deleted"});
       }
