@@ -512,7 +512,7 @@ app.use('/', (req, res, next) => {
 				if (order.status == 'Returns') {
 					returnsOrders.push(order);
 				}
-				if (order.status == '"Not Delivered') {
+				if (order.status == 'Not Delivered') {
 					unDeliveredOrders.push(order);
 				}
 			});
